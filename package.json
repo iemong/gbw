@@ -1,0 +1,23 @@
+{
+  "name": "gbw",
+  "version": "0.0.0-development",
+  "description": "",
+  "main": "main.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "semantic-release": "semantic-release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iemong/gbw.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iemong/gbw/issues"
+  },
+  "homepage": "https://github.com/iemong/gbw#readme",
+  "devDependencies": {
+    "semantic-release": "^17.4.5"
+  }
+}
