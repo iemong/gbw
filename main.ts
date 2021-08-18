@@ -1,4 +1,16 @@
-const processResolve = async (p: Deno.Process) => {
+import { open } from "https://deno.land/x/opener/mod.ts";
+
+type GitUrlObj = {
+    url: string
+}
+
+const getGitBranch = async () => {
+  const p = Deno.run({
+    cmd: ["git", "symbolic-ref", "--short", "HEAD"],
+    stdout: "piped",
+    stderr: "piped",
+  });
+
   const { code } = await p.status();
   const rawOutput = await p.output();
   const rawError = await p.stderrOutput();
@@ -13,25 +25,32 @@ const processResolve = async (p: Deno.Process) => {
   }
 };
 
-const getGitBranch = () => {
+const openGitUrl = async () => {
   const p = Deno.run({
-    cmd: ["git", "symbolic-ref", "--short", "HEAD"],
+    cmd: ["gh", "repo", "view", "--json", "url"],
     stdout: "piped",
     stderr: "piped",
   });
-  return processResolve(p);
+  const { code } = await p.status();
+  const rawOutput = await p.output();
+  const rawError = await p.stderrOutput();
+
+  if (code === 0) {
+    const result = new TextDecoder().decode(rawOutput);
+    const json: GitUrlObj = JSON.parse(result)
+    return { code, result: json.url };
+  } else {
+    const result = new TextDecoder().decode(rawError);
+    console.error(result);
+    return { code, result };
+  }
 };
 
-const openCurrentBranch = (branchName: string) => {
-  const p = Deno.run({
-    cmd: ["gh", "repo", "view", "-b", branchName, "-w"],
-    stdout: "piped",
-    stderr: "piped",
-  });
-  return processResolve(p);
-};
+const { result: branchName } = await getGitBranch();
+const { code, result } = await openGitUrl();
 
-const { code, result: branchName } = await getGitBranch();
-await openCurrentBranch(branchName);
+const url = `${result}/tree/${branchName}`
+
+await open(new URL(url).href);
 
 Deno.exit(code);
