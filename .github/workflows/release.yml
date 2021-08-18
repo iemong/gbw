@@ -4,6 +4,20 @@ on:
     branches:
       - main
 jobs:
+  compile:
+    name: Compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.13.0
+      - name: Compile
+        run: make build
   release:
     name: Release
     runs-on: ubuntu-latest
@@ -16,12 +30,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14
-      - name: Setup Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.13.0
-      - name: Compile
-        run: make build
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Release
